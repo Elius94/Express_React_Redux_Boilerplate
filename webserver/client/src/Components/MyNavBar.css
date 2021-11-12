@@ -1,0 +1,29 @@
+.user-pic {
+    text-align: center;
+    height: 100px;
+}
+
+.user-pic .avatar {
+    width: 100px;
+    height: 100px;
+    text-align: center;
+}
+
+.selectionPath {
+    padding-right: 15px;
+}
+
+.iconUser {
+    padding-right: 10px;
+}
+
+.largeAvatar {
+    width: 150px !important;
+    height: 150px !important;
+    margin: auto !important;
+    margin-bottom: 20px !important;
+}
+
+.btnUploadPicture {
+    margin-bottom: 15px !important;
+}

@@ -1,0 +1,19 @@
+html,
+body {
+    height: 100%;
+}
+
+.title {
+    text-align: center !important;
+    margin: 1ch !important
+}
+
+#error {
+    padding-top: 10px;
+    height: 1ch
+}
+
+.copytext {
+    text-align: center !important;
+    margin-bottom: 0px !important;
+}

@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+
+var app = require('../app')
+const httpServer = require('../servers/socketio_server')
+const sm = require('../integrations/session_manager')
+
+/**
+ * Normalize a port into a number, string, or false.
+ * @param val
+ * String representation of the port to be parsed
+ * @returns
+ * The port as a number if OK, either the string or
+ * false otherwise (TODO: a uniform return value type might be
+ * better than 3 different return types...)
+ */
+function normalizePort(val) {
+    var port = parseInt(val, 10)
+
+    if (isNaN(port)) {
+        // named pipe
+        return val
+    }
+
+    if (port >= 0) {
+        // port number
+        return port
+    }
+
+    return false
+}
+
+/**
+ * This is the real entry point of the script
+ */
+
+// Get port from environment and store in Express
+const port = normalizePort(process.env.PORT || '9001')
+console.log(`app port: ${port}`)
+app.set('port', port)
+
+// Launch the HTTP server
+const ioServer = httpServer.startServer(app, port)
+    // Init Session manager
+sm.initSocketReference(ioServer)
