@@ -7,24 +7,39 @@ React app talk with the server using a Bkconnect Js file.
 
 In this example I use Postgres for DB.
 
-Have fun!
+1. Install backend env: 
+    -     cd ./webserver/api/
+    -     cp .env.example .env
+    -     npm install
+    -     npm install '@pm2/io'
+    - To test the CSV db API you can run ```npm test``` (it use mocha)
 
-chmod +x ./install.sh
+2. Install frontend env:
+    -     cd ../client/
+    -     cp .env.example .env
+    - adapt .env file to your backend ip address (if you run all in local you can leave 'localhost')
+    -     npm install
+    -     npm install -g serve
+    -     npm run build
 
-chmod +x ./serve.sh
+3. Run both applications:
+    To run the applications you can do in different way:
+    1. Using PM2 server manager there is a ```ecosystem.config.js```, run it with this command in the root of the project:
+        - Install pm2 with ```npm i -g pm2```
+        - Start ecosystem with ```pm2 start ecosystem.config.js```
+    2. Manually you can run both apps in this way:
+        - Execute ```serve.sh``` script (it runs 'npm run start' on the backend and 'npm run serve' on the client) 
 
-- sudo apt update
-- sudo apt install nodejs npm
-- nodejs -v
 
-To install:sudo ./install.sh
+## Note:
+The automated scripts must be executable with right permissions:
 
-Then...
+    chmod +x ./install.sh
+    chmod +x ./serve.sh
 
-(x windows:npm i serve)
-
-To serve:sudo ./serve.sh
+use ```node -v``` to make shure to have the latest Node.js version.
 
 In production mode:
 
 Change webserver/client/.env file --> Comment Locallhost ip address and set it with your server public IP
+

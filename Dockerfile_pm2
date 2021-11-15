@@ -1,0 +1,30 @@
+FROM keymetrics/pm2:latest-alpine
+FROM node:16
+
+# Create app directory
+WORKDIR /usr/src/app/
+
+# Bundle APP files
+COPY . .
+
+WORKDIR /usr/src/app/webserver/api/
+
+# where available (npm@5+)
+RUN npm install & npm install '@pm2/io'
+
+WORKDIR /usr/src/app/webserver/client/
+
+# install and build ./webserver/client/package.
+RUN npm install
+RUN npm run build
+
+WORKDIR /usr/src/app/
+RUN npm i -g pm2
+
+# Expose the listening port of your app
+EXPOSE 80 9001
+
+# Show current folder structure in logs
+RUN ls -al -R
+
+CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]

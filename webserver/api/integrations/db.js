@@ -4,6 +4,7 @@
 
 const { Pool } = require('pg')
 const dbUtils = require('./db_utils.js')
+const md5 = require('md5')
 const { getUsernameFromSessionKey } = require('./session_manager.js')
 const io = require('@pm2/io')
 

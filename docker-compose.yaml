@@ -1,18 +1,10 @@
 version: '3.3'
 services:
 
-# Frontend
-  webapp_frontend:
-    image: "webapp_frontend"
-    container_name: webapp_frontend
+# PM2
+  pm2:
+    image: "pm2"
+    container_name: pm2
     restart: always
     ports:
-     - "80:5000"
-
- # Backend
-  webapp_backend:
-    image: "webapp_backend"
-    container_name: webapp_backend
-    restart: always
-    ports:
-     - "9001:9001"   
+     - "80:9001"

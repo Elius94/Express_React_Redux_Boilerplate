@@ -1,14 +1,10 @@
 
-
-
 ```
 # Docker build images
-docker build . -f Dockerfile_frontend -t webapp_frontend:latest
-docker build . -f Dockerfile_backend -t webapp_backend:latest
+docker build . -f Dockerfile_pm2 -t pm2:latest
 
 # Docker run containers
-docker run -d -p 80:5000 webapp_frontend
-docker run -d -p 9001:9001  webapp_backend
+docker run -d -p 80:9001 pm2
 
 # Docker compose
 docker-compose up -d
