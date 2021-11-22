@@ -5,17 +5,30 @@ const fs = require('fs')
 const { loadNewSession, checkSessionStatus, deleteSession } = require('../integrations/session_manager')
 const io = require('@pm2/io')
 
+/** @const {PMX.Counter} */
 const api_post_req_meter = io.meter({
     name: 'API POST Frequency',
     id: 'app/requests/apifreq'
 });
 
+/** @const {PMX.Counter} */
 const api_post_req_counter = io.counter({
     name: 'API POST Counter',
     id: 'app/realtime/apicount'
 });
 
-router.post('/', async function(req, res, next) {
+/** 
+ * @description Parses the request and returns the data in the body and in the header of the request
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next function
+ * @returns {Object} - Returns the data in the body and in the header of the request as an object
+ * @throws {Error} - Throws an error if the request is not a POST request or if the request body is not a JSON object or if the request header is not a JSON object
+ * 
+ * @info req.headers.api_name is the name of the API that is being called (e.g. 'try_login')
+ * 
+ */
+async function apiParser(req, res, next) {
     if (typeof(req.headers.api_name) !== 'undefined') {
         let response = {}
 
@@ -119,7 +132,7 @@ router.post('/', async function(req, res, next) {
                     try {
                         const body = req.body
                         if (await db.validateApiRequest(req.headers.session_key, "get_data")) {
-                            const dbResponse = await db.getTableData(body.sector, body.page)
+                            const dbResponse = await db.getTableData(body.table)
                             if (dbResponse !== false) {
                                 response.accepted = true
                                 response.message = 'OK'
@@ -232,38 +245,6 @@ router.post('/', async function(req, res, next) {
                     }
                 }
                 break
-
-                response = {
-                    accepted: false,
-                    message: ''
-                }
-                if (typeof(req.body) === 'object') {
-                    try {
-                        const body = req.body
-                        if (await db.validateApiRequest(req.headers.session_key, "manage_users")) {
-                            const db_response = await db.updateUserSectors(body.usernames)
-                                // console.log(db_response)
-                            if (db_response !== false) {
-                                response.accepted = true
-                                response.message = 'OK'
-                            } else {
-                                response.accepted = false
-                                response.message = 'Something is wrong!'
-                            }
-                        } else {
-                            response.accepted = false
-                            response.message = 'Action not allowed!'
-                            console.warn('Action not allowed! api_name:', api_name)
-                        }
-                    } catch (error) {
-                        response.accepted = false
-                        response.message = 'Error in API call!'
-                        response.analytics = null
-                    } finally {
-                        res.send(JSON.stringify(response))
-                    }
-                }
-                break
             case 'update_profile':
                 response = {
                     accepted: false,
@@ -301,9 +282,7 @@ router.post('/', async function(req, res, next) {
                         // Save Planimetry file to uploads/planimetries folder
                     const imageBuffer = new Buffer(imageData, 'base64')
                     try {
-                        if (req.headers.type === 'planimetry') {
-                            fs.writeFileSync(`./uploads/planimetries/${req.headers.file_name}`, imageBuffer)
-                        } else if (req.headers.type === 'profilePic') {
+                        if (req.headers.type === 'profilePic') {
                             fs.writeFileSync(`./uploads/users_profile_pics/${req.headers.file_name}`, imageBuffer)
                         }
                         response.accepted = true
@@ -394,6 +373,9 @@ router.post('/', async function(req, res, next) {
         res.send(JSON.stringify(response))
     }
     res.end()
-})
+}
+
+
+router.post('/', apiParser())
 
 module.exports = router

@@ -18,7 +18,13 @@ const pgtoolsConfig = {
     port: process.env.DB_PORT || 5432
 };
 
-;
+/**
+ * @description Initialize the database with fake data
+ * comment dropDb() if the database does not exist
+ * createDb() creates the database
+ * addDbSchema(false) adds the schema to the database
+ * loadFakeData() loads fake data into the database taken from ./fake-data/fake-data.js
+ */
 (async() => {
     console.log('[test-init-fake-db] dropping db')
     await initDb.dropDb()
