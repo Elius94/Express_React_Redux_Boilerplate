@@ -376,6 +376,6 @@ async function apiParser(req, res, next) {
 }
 
 
-router.post('/', apiParser())
+router.post('/', apiParser)
 
 module.exports = router
