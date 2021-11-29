@@ -2,7 +2,7 @@
 
 var app = require('../app')
 const httpServer = require('../servers/socketio_server')
-const sm = require('../integrations/session_manager')
+const { SM } = require('../integrations/session_manager')
 
 /**
  * Normalize a port into a number, string, or false.
@@ -41,4 +41,4 @@ app.set('port', port)
 // Launch the HTTP server
 const ioServer = httpServer.startServer(app, port)
     // Init Session manager
-sm.initSocketReference(ioServer)
+SM.initSocketReference(ioServer)

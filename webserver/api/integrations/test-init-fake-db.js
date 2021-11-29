@@ -26,12 +26,16 @@ const pgtoolsConfig = {
  * loadFakeData() loads fake data into the database taken from ./fake-data/fake-data.js
  */
 (async() => {
-    console.log('[test-init-fake-db] dropping db')
-    await initDb.dropDb()
-    console.log('[test-init-fake-db] creating db')
-    await initDb.createDb()
-    console.log('[test-init-fake-db] adding db schema')
-    await initDb.addDbSchema(false)
-    console.log('[test-init-fake-db] loading fake data')
-    await faker.loadFakeData()
+    try {
+        //console.log('[test-init-fake-db] dropping db')
+        //await initDb.dropDb()
+        console.log('[test-init-fake-db] creating db')
+        await initDb.createDb()
+        console.log('[test-init-fake-db] adding db schema')
+        await initDb.addDbSchema(false)
+        console.log('[test-init-fake-db] loading fake data')
+        await faker.loadFakeData()
+    } catch (err) {
+        console.error('[main]', err)
+    }
 })()

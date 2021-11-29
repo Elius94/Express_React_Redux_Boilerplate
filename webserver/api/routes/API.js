@@ -2,7 +2,7 @@ var express = require('express')
 var router = express.Router()
 const db = require('../integrations/db.js')
 const fs = require('fs')
-const { loadNewSession, checkSessionStatus, deleteSession } = require('../integrations/session_manager')
+const { SM } = require('../integrations/session_manager')
 const io = require('@pm2/io')
 
 /** @const {PMX.Counter} */
@@ -40,7 +40,7 @@ async function apiParser(req, res, next) {
         const api_name = req.headers.api_name
         if (api_name !== 'try_login') {
             const session_key = req.headers.session_key
-            if (session_key !== 'guest' && !checkSessionStatus(session_key)) {
+            if (session_key !== 'guest' && !SM.checkSessionStatus(session_key)) {
                 // Session is expired! Logging out
                 console.log("[routes/api] Session key is expired, Logging out...")
                 response = {
@@ -62,7 +62,7 @@ async function apiParser(req, res, next) {
                 if (typeof(req.body) === 'object') {
                     try {
                         const body = req.body
-                        let ret = deleteSession(body.session_key)
+                        let ret = SM.deleteSession(body.session_key)
                         if (ret !== false) {
                             response.accepted = true
                             response.message = 'Bye Bye! 😘'
@@ -100,7 +100,7 @@ async function apiParser(req, res, next) {
                             response.accepted = true
                             response.message = 'Welcome! 😘'
                             response.user_data = db_response
-                            response.user_data.session_key = loadNewSession(body.username)
+                            response.user_data.session_key = SM.loadNewSession(body.username)
                         } else {
                             response.accepted = false
                             response.message = 'Wrong username or password... Are you a f**ing HACKER? 💩💩💩'
@@ -131,7 +131,7 @@ async function apiParser(req, res, next) {
                 if (typeof(req.body) === 'object') {
                     try {
                         const body = req.body
-                        if (await db.validateApiRequest(req.headers.session_key, "get_data")) {
+                        if (await db.validateApiRequesest(req.headers.session_key, "get_data")) {
                             const dbResponse = await db.getTableData(body.table)
                             if (dbResponse !== false) {
                                 response.accepted = true
@@ -161,15 +161,21 @@ async function apiParser(req, res, next) {
                     let response = undefined
                     try {
                         const body = req.body
-                        const db_response = await db.getUserProfilePic(body.username)
-                            // console.log('[routes/api/get_userprofile_pic]', db_response)
-                        let buff
-                        if (db_response === null) { // Se è undefined restituisce l'icona generica
-                            buff = fs.readFileSync('./uploads/users_profile_pics/default.png', { encoding: 'base64' })
-                        } else if (typeof db_response === 'string') { // Altrimenti restituisce l'immagine del profilo
-                            buff = fs.readFileSync(`./uploads/users_profile_pics/${db_response}`, { encoding: 'base64' })
+                        if (await db.validateApiRequest(req.headers.session_key)) {
+                            const db_response = await db.getUserProfilePic(body.username)
+                                // console.log('[routes/api/get_userprofile_pic]', db_response)
+                            let buff
+                            if (db_response === null) { // Se è undefined restituisce l'icona generica
+                                buff = fs.readFileSync('./uploads/users_profile_pics/default.png', { encoding: 'base64' })
+                            } else if (typeof db_response === 'string') { // Altrimenti restituisce l'immagine del profilo
+                                buff = fs.readFileSync(`./uploads/users_profile_pics/${db_response}`, { encoding: 'base64' })
+                            }
+                            response = buff
+                        } else {
+                            response.accepted = false
+                            response.message = 'Action not allowed!'
+                            console.warn('Action not allowed! api_name:', api_name)
                         }
-                        response = buff
                     } catch (err) {
                         response = {}
                         response.accepted = false
@@ -227,14 +233,20 @@ async function apiParser(req, res, next) {
                 if (typeof(req.body) === 'object') {
                     try {
                         const body = req.body
-                        const db_response = await db.updateSelectedUser(body.myusername, body.myPassword, body.username, body.settings)
-                            // console.log(db_response)
-                        if (db_response !== false) {
-                            response.accepted = true
-                            response.message = 'OK'
+                        if (await db.validateApiRequest(req.headers.session_key, "manage_users")) {
+                            const db_response = await db.updateSelectedUser(body.myusername, body.myPassword, body.username, body.settings)
+                                // console.log(db_response)
+                            if (db_response !== false) {
+                                response.accepted = true
+                                response.message = 'OK'
+                            } else {
+                                response.accepted = false
+                                response.message = 'Old password is wrong!'
+                            }
                         } else {
                             response.accepted = false
-                            response.message = 'Old password is wrong!'
+                            response.message = 'Action not allowed!'
+                            console.warn('Action not allowed! api_name:', api_name)
                         }
                     } catch (error) {
                         response.accepted = false
@@ -253,14 +265,20 @@ async function apiParser(req, res, next) {
                 if (typeof(req.body) === 'object') {
                     try {
                         const body = req.body
-                        const db_response = await db.updateUserProfile(body.username, body.email, body.filename, body.newPassword, body.oldPassword)
-                            // console.log(db_response)
-                        if (db_response !== false) {
-                            response.accepted = true
-                            response.message = 'OK'
+                        if (await db.validateApiRequest(req.headers.session_key)) {
+                            const db_response = await db.updateUserProfile(body.username, body.email, body.filename, body.newPassword, body.oldPassword)
+                                // console.log(db_response)
+                            if (db_response !== false) {
+                                response.accepted = true
+                                response.message = 'OK'
+                            } else {
+                                response.accepted = false
+                                response.message = 'Old password is wrong!'
+                            }
                         } else {
                             response.accepted = false
-                            response.message = 'Old password is wrong!'
+                            response.message = 'Action not allowed!'
+                            console.warn('Action not allowed! api_name:', api_name)
                         }
                     } catch (error) {
                         response.accepted = false

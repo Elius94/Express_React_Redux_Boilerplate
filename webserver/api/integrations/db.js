@@ -5,7 +5,7 @@
 const { Pool } = require('pg')
 const dbUtils = require('./db_utils.js')
 const md5 = require('md5')
-const { getUsernameFromSessionKey } = require('./session_manager.js')
+const { SM } = require('./session_manager.js')
 const io = require('@pm2/io')
 
 const query_meter = io.meter({
@@ -355,7 +355,7 @@ async function validateApiRequest(sessionKey, action = undefined) {
         }
         return true
     }
-    const username = getUsernameFromSessionKey(sessionKey)
+    const username = SM.getUsernameFromSessionKey(sessionKey)
     if (username) {
         let user_data = undefined
         const query_user_id = {
@@ -372,6 +372,8 @@ async function validateApiRequest(sessionKey, action = undefined) {
             } else {
                 /* This may be a string or null */
                 user_data = userIdRes.rows[0]
+                    // Restart the session timer for the user because he did something in the app.
+                SM.restartSessionTimer(sessionKey)
             }
         } catch (err) {
             console.error(err)
@@ -395,6 +397,7 @@ async function validateApiRequest(sessionKey, action = undefined) {
                     /*const availableSectors = await getAvailableSectorsForUser(username)
                     if (availableSectors.includes(sector) || availableSectors === "ALL")
                         return true*/
+                    return true
                 }
                 break
             default:
@@ -415,7 +418,7 @@ async function validateApiRequest(sessionKey, action = undefined) {
  */
 async function getUsersList(sessionKey) {
     const users = []
-    const username = getUsernameFromSessionKey(sessionKey)
+    const username = SM.getUsernameFromSessionKey(sessionKey)
     if (username === false) {
         console.error('[getUsersList] session key', sessionKey,
             'is not associated to any user, returning')

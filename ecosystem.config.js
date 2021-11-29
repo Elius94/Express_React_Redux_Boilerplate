@@ -9,7 +9,7 @@ module.exports = {
         }
     }, {
         name: "server",
-        script: "./webserver/api/bin/www",
+        script: "./bin/www",
         cwd: "./webserver/api/",
         args: ""
     }],
