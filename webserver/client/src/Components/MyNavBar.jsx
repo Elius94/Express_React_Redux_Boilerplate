@@ -220,7 +220,7 @@ export default function AccountSettingsDialog() {
             >
                 <DialogTitle id="responsive-dialog-title">{`Account Settings For ${capitalize(username)}`}</DialogTitle>
                 <DialogContent>
-                    <Avatar alt={username} src={newUserProfilePic.indexOf('base64,') > -1 ? newUserProfilePic : `data:image/jpeg;base64,${newUserProfilePic}`} />
+                    <Avatar className="largeAvatar" alt={username} src={newUserProfilePic.indexOf('base64,') > -1 ? newUserProfilePic : `data:image/jpeg;base64,${newUserProfilePic}`} />
                     <Button tabIndex={0} variant="outlined" fullWidth onClick={() => setOpenUploader(true)}>Change Profile Picture</Button>
                     <DropzoneDialog
                         open={openUploader}

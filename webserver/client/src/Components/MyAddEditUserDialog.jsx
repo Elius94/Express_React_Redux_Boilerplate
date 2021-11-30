@@ -9,6 +9,7 @@ import {
 } from '../features/app/appSlice';
 import {
     CreateUserProfile,
+    DeleteUser,
     GetUsersList,
     UpdateSelectedUser,
 } from "../BkConnect";
@@ -125,10 +126,10 @@ export const MyAddUserDialog = () => {
     const [changePassword, setChangePassword] = React.useState(false)
     const [userEnabled, setUserEnabled] = React.useState(false)
     const [editedUserPermissions, setEditedUserPermissions] = React.useState({
-        users_management: false, dataset_management: false, 
+        users_management: false, dataset_management: false,
     })
     const [userPermissions, setUserPermissions] = React.useState({
-        users_management: false, dataset_management: false, 
+        users_management: false, dataset_management: false,
     })
 
     function validateEmail(email) {
@@ -341,6 +342,29 @@ export const MyAddUserDialog = () => {
                 } else {
                     enqueueSnackbar('Error! Password is wrong...', { variant: 'error' });
                     error_edit_users['txtYourPassword'] = true
+                    dispatch(setIsLoading(false))
+                    return
+                }
+                dispatch(setIsLoading(false))
+                break
+            case 'delete_user':
+                if (yourPassword.length === 0 || (changePassword === true && newPassword2_edit.length === 0)) {
+                    enqueueSnackbar('You have to fill the form as well!', { variant: 'error' });
+                    return
+                }
+                for (let er in error_edit_users) {
+                    if (error_edit_users[er]) {
+                        enqueueSnackbar('You have to fill the form as well!', { variant: 'error' });
+                        return
+                    }
+                }
+                dispatch(setIsLoading(true))
+                // Aggiungere i campi
+                const _result = await DeleteUser(checked[0])
+                if (_result) {
+                    enqueueSnackbar('User Deleted!', { variant: 'success' });
+                } else {
+                    enqueueSnackbar('Error deleting user...', { variant: 'error' });
                     dispatch(setIsLoading(false))
                     return
                 }
@@ -608,6 +632,7 @@ export const MyAddUserDialog = () => {
                             </List>
                         </DialogContent>
                         <DialogActions>
+                            <Button tabIndex={4} variant="contained" color="error" onClick={() => handleClose('delete_user')}>Delete Selected User</Button>
                             <Button tabIndex={4} variant="contained" color="secondary" onClick={() => handleClose('submit_edit')}>Update Selected User</Button>
                             <Button tabIndex={5} autoFocus onClick={() => handleClose('cancel')} variant="contained" color="primary">Close</Button>
                         </DialogActions>

@@ -1,12 +1,12 @@
 {
     "name": "api",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "private": true,
     "scripts": {
         "start": "node ./bin/www",
         "test_docker": "./test_docker.sh",
         "db_repl": "node db_repl.js",
-        "test": "mocha"
+        "test": "mocha --timeout 10000"
     },
     "dependencies": {
         "@pm2/io": "^5.0.0",
@@ -29,6 +29,7 @@
     "devDependencies": {
         "chai": "^4.2.0",
         "chai-as-promised": "^7.1.1",
+        "chai-http": "^4.3.0",
         "eslint": "^7.10.0",
         "eslint-config-standard": "^14.1.1",
         "eslint-plugin-import": "^2.22.1",
@@ -37,6 +38,7 @@
         "eslint-plugin-standard": "^4.0.1",
         "jsdoc": "^3.6.6",
         "mocha": "^8.4.0",
+        "node-fetch": "^2.6.6",
         "yargs-parser": ">=5.0.0-security.0"
     }
 }

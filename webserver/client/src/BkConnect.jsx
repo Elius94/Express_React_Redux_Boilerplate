@@ -1,9 +1,21 @@
 import { io } from "socket.io-client";
 const ENDPOINT = `http${process.env.REACT_APP_USE_HTTPS === 'yes' ? "s" : ""}://${process.env.REACT_APP_BK_IPV4_ADDRESS}:9001`;
 const API_ROUTE = "/API/"
+const API_VERSION = "v1/"
 let md5 = require('md5')
 let socket = undefined
 let session_key = 'guest'
+
+// Function to build the GET query string from body object, using encoding (for API calls) starting with ?
+function BuildQueryString(body) {
+    let queryString = "?"
+    for (let key in body) {
+        queryString += encodeURIComponent(key) + "=" + encodeURIComponent(body[key])
+        if (key !== Object.keys(body).pop())
+            queryString += "&"
+    }
+    return queryString
+}
 
 async function Logout(self = false) {
     if (self) {
@@ -11,8 +23,8 @@ async function Logout(self = false) {
         let credentials = {
             session_key
         }
-        const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
-            method: 'POST',
+        const rawResponse = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
+            method: 'DELETE',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -74,7 +86,7 @@ async function TryLogin(user, pwd) {
         "username": user,
         "password": md5(pwd)
     }
-    const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
+    const rawResponse = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -96,17 +108,16 @@ async function TryLogin(user, pwd) {
  */
 async function GetTableData(page) {
     let body = {
-        page
+        table: page
     }
-    const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
-        method: 'POST',
+    const rawResponse = await fetch(ENDPOINT + API_ROUTE + API_VERSION + BuildQueryString(body), {
+        method: 'GET',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'session_key': session_key,
             'api_name': 'get_table_data'
-        },
-        body: JSON.stringify(body)
+        }
     })
     const sectors = await rawResponse.json()
     if (sectors.logout) Logout()
@@ -124,15 +135,14 @@ async function GetUserProfilePic(username) {
     let body = {
         "username": username
     }
-    const binaryImage = await fetch(ENDPOINT + API_ROUTE, {
-        method: 'POST',
+    const binaryImage = await fetch(ENDPOINT + API_ROUTE + API_VERSION + BuildQueryString(body), {
+        method: 'GET',
         headers: {
             'Accept': 'image/png',
             'Content-Type': 'application/json',
             'session_key': session_key,
             'api_name': 'get_userprofile_pic'
-        },
-        body: JSON.stringify(body)
+        }
     })
     const base64ProfilePic = await binaryImage.text()
     if (base64ProfilePic.indexOf("logout") > 0)
@@ -160,7 +170,7 @@ async function CreateUserProfile(permissions, username, email, password, profile
             file: profilePictureFile
         }
         try {
-            const resp = await fetch(ENDPOINT + API_ROUTE, {
+            const resp = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -188,7 +198,7 @@ async function CreateUserProfile(permissions, username, email, password, profile
             profile_pic_path: filename,
             password: md5(password),
         }
-        const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
+        const rawResponse = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -223,7 +233,7 @@ async function UpdateUserProfile(username, email, newPassword, oldPassword, prof
             file: profilePictureFile
         }
         try {
-            const resp = await fetch(ENDPOINT + API_ROUTE, {
+            const resp = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -251,42 +261,13 @@ async function UpdateUserProfile(username, email, newPassword, oldPassword, prof
             'oldPassword': md5(oldPassword),
             'newPassword': newPassword ? md5(newPassword) : undefined
         }
-        const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
-            method: 'POST',
+        const rawResponse = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
+            method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
                 'session_key': session_key,
                 'api_name': 'update_profile'
-            },
-            body: JSON.stringify(body)
-        })
-        const response = await rawResponse.json()
-        if (response.logout) Logout()
-            //console.log("devices_table: ", devices_table)
-        return response
-    }
-}
-
-/**
- * Function to call update_profile API
- *
- * @param {string} username
- * @return {*} 
- */
-async function UpdateUserSectors(username, sectors) {
-    if (username && sectors) {
-        let body = {
-            username,
-            sectors
-        }
-        const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'session_key': session_key,
-                'api_name': 'update_user_sectors'
             },
             body: JSON.stringify(body)
         })
@@ -320,8 +301,8 @@ async function UpdateSelectedUser(myusername, myPassword, username, permissions,
             }
         }
         if (newPassword) body.settings.password = md5(newPassword)
-        const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
-            method: 'POST',
+        const rawResponse = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
+            method: 'PUT',
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -347,15 +328,14 @@ async function GetUsersList() {
     let body = {
 
     }
-    const binaryImage = await fetch(ENDPOINT + API_ROUTE, {
-        method: 'POST',
+    const binaryImage = await fetch(ENDPOINT + API_ROUTE + API_VERSION + BuildQueryString(body), {
+        method: 'GET',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'session_key': session_key,
             'api_name': 'get_users_list'
-        },
-        body: JSON.stringify(body)
+        }
     })
     const res = await binaryImage.json()
     if (res.logout) Logout()
@@ -375,8 +355,8 @@ async function DeleteUser(username) {
     let body = {
         username
     }
-    const rawResponse = await fetch(ENDPOINT + API_ROUTE, {
-        method: 'POST',
+    const rawResponse = await fetch(ENDPOINT + API_ROUTE + API_VERSION, {
+        method: 'DELETE',
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
@@ -397,7 +377,6 @@ export {
     GetUserProfilePic,
     UpdateUserProfile,
     UpdateSelectedUser,
-    UpdateUserSectors,
     GetUsersList,
     StartSocketConnection,
     GetTableData,

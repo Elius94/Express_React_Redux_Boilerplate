@@ -158,13 +158,24 @@ async function getUserProfilePic(username) {
  * from the table
  */
 async function getTableData(tab) {
-    // console.log('[getTreeView] input', siteId);
     let checkRes = false
     const res = []
-    const dataQuery = {
-        text: `select * from $1;`,
-        values: [tab]
+    let tabName = "";
+
+    switch (tab) { // To prevent for sql injection
+        case 'dataset':
+            tabName = 'dataset'
+            break
+        default:
+            tabName = "dataset"
+            break
     }
+
+    const dataQuery = {
+        text: `SELECT * FROM ${tabName};`,
+        values: []
+    }
+
     try {
         const res = await pool.query(dataQuery)
         checkRes = res.rowCount > 0
@@ -222,7 +233,7 @@ async function createUser(inputs) {
  */
 async function deleteUser(username) {
     const query = {
-        text: 'UPDATE users SET user_disabled = TRUE ' +
+        text: 'DELETE FROM users ' +
             'WHERE username = $1',
         values: [username]
     }
