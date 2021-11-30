@@ -38,7 +38,18 @@ In this example I use Postgres for DB.
     - adapt .env file to your backend ip address (if you run all in local you can leave 'localhost')
     -     npm install
     -     npm install -g serve
-    -     export NODE_OPTIONS=--openssl-legacy-provider && npm run build
+    - if you are using the last Node.js version (17.x.x) you have to set this env variable on Linux ```export NODE_OPTIONS=--openssl-legacy-provider && npm run build```
+      on Windows you have to change the script object in package.json adding ```set NODE_OPTIONS=--openssl-legacy-provider``` to the build command, before react-scripts build: 
+        ```json
+        ...
+        "scripts": {
+            "start": "react-scripts start",
+            "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build", 
+            "test": "react-scripts test",
+            "eject": "react-scripts eject"
+        },
+        ...
+        ```
     -     npm run build
 
 4. Run both applications:
