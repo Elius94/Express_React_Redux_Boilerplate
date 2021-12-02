@@ -28,7 +28,7 @@ var usersRouter = require('./routes/index');
 var APIRouter = require('./routes/API');
 
 /**
- * app = express()
+ * app = express() - the server unit
  * @constant {object}
  * @see {@link https://expressjs.com/en/4x/api.html#app}
  */
