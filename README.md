@@ -2,6 +2,8 @@
 
 Use this repository to build a webapp with Express.js (backend) and React+Redux (frontend).
 
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=elius94&repo=Express_React_Redux_Boilerplate&theme=github_dark&show_icons=true)](https://github.com/Elius94/Express_React_Redux_Boilerplate)
+
 This webapp uses RESTFULL APIs using HTTP Post messages.
 React app talk with the server using a Bkconnect Js file.
 
