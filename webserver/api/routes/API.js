@@ -255,7 +255,7 @@ async function apiGetParser(req, res, next) {
                     message: '',
                     table_data: {}
                 }
-                if (typeof(req.body) === 'object') {
+                if (typeof(req.query) === 'object') {
                     try {
                         const body = req.query
                         if (await db.validateApiRequest(req.headers.session_key, "get_data")) {
@@ -288,7 +288,7 @@ async function apiGetParser(req, res, next) {
                 }
                 break
             case 'get_userprofile_pic':
-                if (typeof(req.body) === 'object') {
+                if (typeof(req.query) === 'object') {
                     let response = undefined
                     try {
                         const body = req.query
@@ -326,7 +326,7 @@ async function apiGetParser(req, res, next) {
                     message: '',
                     users_list: {}
                 }
-                if (typeof(req.body) === 'object') {
+                if (typeof(req.query) === 'object') {
                     try {
                         const body = req.query
                         if (await db.validateApiRequest(req.headers.session_key, "manage_users")) {
